@@ -13,8 +13,9 @@ import CoreLocation
 public class LocationFramework: NSObject, CLLocationManagerDelegate{
     let locationManager = CLLocationManager()
     var lastLocationUpdate: NSDate?
-    var locationInformations: [String]?
-    var updateLocation: (([String]) -> Void)?
+    var locationInformations = [String]()
+    var locations: [String]?
+    public var updateLocation: (([String]) -> Void)?
     
     public override init() {
         super.init()
@@ -86,20 +87,19 @@ public class LocationFramework: NSObject, CLLocationManagerDelegate{
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        if ((lastLocationUpdate == nil) || (fabs((lastLocationUpdate?.timeIntervalSinceNow)!) > 2)) {
-            let location = locations[0];
-            print(location)
-            let latitude = location.coordinate.latitude
-            let longitude = location.coordinate.longitude
-            let locationString = String(format: "%f,,%f", latitude, longitude)
-            locationInformations?.append(locationString)
-            if let updateLocation = updateLocation, let informations = locationInformations {
-                updateLocation(informations)
-            }
+        let location = locations[0];
+        let latitude = location.coordinate.latitude
+        let longitude = location.coordinate.longitude
+        if lastLocationUpdate == nil {
             lastLocationUpdate = NSDate()
         }
-        
-        
+        let locationString = String(format: "latitude is %f, longitude is %f, time is %@", latitude, longitude, lastLocationUpdate!)
+        locationInformations.append(locationString)
+        if let updateLocation = updateLocation {
+            updateLocation(locationInformations)
+        }
+        lastLocationUpdate = NSDate()
+
     }
     
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
